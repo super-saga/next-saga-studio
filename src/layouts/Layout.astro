@@ -19,15 +19,35 @@ const { lang, title, description } = t.html
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+
+    <!-- Open Graph (Facebook, LinkedIn, WhatsApp, Telegram, iMessage, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Saga Studio" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/logo-text-light.jpeg" />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://studio.saga.co.id/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Saga Studio — AI & Product Engineering Studio" />
+    <meta property="og:url" content={`https://studio.saga.co.id/${lang}/`} />
     <meta property="og:locale" content={lang === 'id' ? 'id_ID' : 'en_US'} />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@saga.tekno" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://studio.saga.co.id/og-image.png" />
+    <meta name="twitter:image:alt" content="Saga Studio — AI & Product Engineering Studio" />
+
+    <!-- Canonical + hreflang -->
     <link rel="canonical" href={`https://studio.saga.co.id/${lang}/`} />
     <link rel="alternate" hreflang="en" href="https://studio.saga.co.id/en/" />
     <link rel="alternate" hreflang="id" href="https://studio.saga.co.id/id/" />
     <link rel="alternate" hreflang="x-default" href="https://studio.saga.co.id/" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
   </head>

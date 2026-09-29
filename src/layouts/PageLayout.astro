@@ -23,11 +23,28 @@ const { lang } = t.html
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{resolvedTitle}</title>
     <meta name="description" content={resolvedDesc} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Saga Studio" />
     <meta property="og:title" content={resolvedTitle} />
     <meta property="og:description" content={resolvedDesc} />
-    <meta property="og:image" content="/logo-text-light.jpeg" />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://studio.saga.co.id/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Saga Studio — AI & Product Engineering Studio" />
     <meta property="og:locale" content={lang === 'id' ? 'id_ID' : 'en_US'} />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@saga.tekno" />
+    <meta name="twitter:title" content={resolvedTitle} />
+    <meta name="twitter:description" content={resolvedDesc} />
+    <meta name="twitter:image" content="https://studio.saga.co.id/og-image.png" />
+    <meta name="twitter:image:alt" content="Saga Studio — AI & Product Engineering Studio" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
   </head>
