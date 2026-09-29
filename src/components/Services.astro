@@ -1,0 +1,285 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { kicker, heading, copy, groups } = t.services
+
+function parseHeading(h: string) {
+  const m = h.match(/^(.*?)\{(.+?)\}(.*)$/)
+  if (!m) return { before: h, hi: '', after: '' }
+  return { before: m[1], hi: m[2], after: m[3] }
+}
+const { before, hi, after } = parseHeading(heading)
+
+const ICONS = [
+  /* Studio — code window */
+  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8l-2 2 2 2M17 8l2 2-2 2M13 8l-2 4"/></svg>`,
+  /* AI — sparkle circuit */
+  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>`,
+  /* Ventures — rocket */
+  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 7 11 7 15h10c0-4-1-9-5-13z"/><path d="M7 15l-2 4h14l-2-4"/><path d="M9 15v2M15 15v2"/></svg>`,
+  /* Method — checklist */
+  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`,
+]
+---
+
+<section id="services" class="services-section">
+  <div class="section-wrapper">
+    <div class="services-header" data-animate>
+      <span class="section-kicker">{kicker}</span>
+      <h2 class="services-h2">
+        {before}<span class="services-highlight">{hi}</span>{after}
+      </h2>
+      <p class="services-copy">{copy}</p>
+    </div>
+
+    <div class="services-body">
+      <!-- Left tabs -->
+      <div class="services-tabs" role="tablist" aria-label="Service categories">
+        {groups.map((g, i) => (
+          <button
+            class="service-tab"
+            role="tab"
+            data-tab={String(i)}
+            aria-selected={i === 0 ? 'true' : 'false'}
+          >
+            <span class="tab-icon" set:html={ICONS[i]} />
+            <div class="tab-text">
+              <span class="tab-title">{g.title}</span>
+              <span class="tab-desc">{g.desc}</span>
+            </div>
+            <span class="tab-arrow">→</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Right panel -->
+      <div class="services-panel" aria-live="polite">
+        {groups.map((g, i) => (
+          <div class="panel-pane" data-pane={String(i)} aria-hidden={i !== 0 ? 'true' : 'false'}>
+            <div class="panel-eyebrow">
+              <span class="panel-dot" />
+              {g.eyebrow}
+            </div>
+            <h3 class="panel-title">{g.title}</h3>
+            <ul class="panel-items">
+              {g.items.map(item => (
+                <li>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A9E93" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .services-section {
+    padding-block: clamp(5rem, 10vw, 8rem);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .services-header { max-width: 52rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+  .services-h2 {
+    margin-top: 0.6rem;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    color: var(--color-text-primary);
+  }
+
+  .services-highlight {
+    color: var(--color-brand-teal);
+  }
+
+  .services-copy {
+    margin-top: 0.9rem;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 44rem;
+  }
+
+  /* ── Body: tabs + panel ── */
+  .services-body {
+    display: grid;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .services-body {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 2rem;
+    }
+  }
+
+  /* ── Tabs ── */
+  .services-tabs {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .service-tab {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-bg-base);
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+
+  .service-tab:hover {
+    border-color: color-mix(in srgb, var(--color-brand-teal) 40%, transparent);
+    background: var(--color-bg-surface);
+  }
+
+  .service-tab[aria-selected="true"] {
+    border-color: var(--color-brand-teal);
+    background: color-mix(in srgb, var(--color-brand-teal) 5%, var(--color-bg-base));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-teal) 10%, transparent);
+  }
+
+  .tab-icon {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--color-text-subtle);
+    transition: color 0.18s;
+  }
+
+  .service-tab[aria-selected="true"] .tab-icon { color: var(--color-brand-teal); }
+
+  .tab-text { flex: 1; min-width: 0; }
+
+  .tab-title {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+  }
+
+  .tab-desc {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--color-text-subtle);
+    line-height: 1.5;
+  }
+
+  .tab-arrow {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-subtle);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.18s, transform 0.18s;
+  }
+
+  .service-tab[aria-selected="true"] .tab-arrow,
+  .service-tab:hover .tab-arrow {
+    opacity: 1;
+    transform: none;
+    color: var(--color-brand-teal);
+  }
+
+  /* ── Panel ── */
+  .services-panel {
+    position: sticky;
+    top: 5.5rem;
+    background: var(--color-text-primary);
+    border-radius: 1.5rem;
+    padding: clamp(1.8rem, 4vw, 2.5rem);
+    min-height: 22rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .panel-pane[aria-hidden="true"] { display: none; }
+
+  .panel-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-brand-teal);
+  }
+
+  .panel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-brand-teal);
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    margin-top: 1rem;
+    font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    color: #fff;
+    max-width: 22rem;
+  }
+
+  .panel-items {
+    margin-top: 1.8rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 0.75rem;
+    list-style: none;
+  }
+
+  .panel-items li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.65rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .panel-items svg { flex-shrink: 0; }
+</style>
+
+<script>
+  const tabs  = document.querySelectorAll<HTMLButtonElement>('.service-tab')
+  const panes = document.querySelectorAll<HTMLElement>('.panel-pane')
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const idx = tab.dataset.tab
+      tabs.forEach(t  => t.setAttribute('aria-selected', 'false'))
+      panes.forEach(p => p.setAttribute('aria-hidden', 'true'))
+      tab.setAttribute('aria-selected', 'true')
+      const target = document.querySelector<HTMLElement>(`.panel-pane[data-pane="${idx}"]`)
+      if (target) target.setAttribute('aria-hidden', 'false')
+    })
+  })
+</script>

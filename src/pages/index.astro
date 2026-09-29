@@ -1,0 +1,56 @@
+---
+// Root redirect — detects Indonesian IP → /id/, everything else → /en/
+// Preference stored in localStorage so manual switches persist.
+---
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Saga Studio</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    html, body { margin: 0; background: #fff; }
+    .loader {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #1A9E93;
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:0.2} 50%{opacity:1} }
+  </style>
+</head>
+<body>
+  <div class="loader" aria-hidden="true"><div class="dot"></div></div>
+  <noscript><meta http-equiv="refresh" content="0;url=/en/" /></noscript>
+
+  <script>
+    (function () {
+      // 1. Honour explicit user preference (set when they click EN/ID switcher)
+      var saved = localStorage.getItem('saga-lang')
+      if (saved === 'id' || saved === 'en') {
+        location.replace('/' + saved + '/')
+        return
+      }
+
+      // 2. IP-based detection via Cloudflare trace — fast, no API key, no CORS
+      fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store' })
+        .then(function (r) { return r.text() })
+        .then(function (text) {
+          var match = text.match(/^loc=(.+)$/m)
+          var country = match ? match[1].trim() : ''
+          var lang = country === 'ID' ? 'id' : 'en'
+          localStorage.setItem('saga-lang', lang)
+          location.replace('/' + lang + '/')
+        })
+        .catch(function () {
+          // 3. Fallback: browser language
+          var lang = (navigator.language || '').toLowerCase().startsWith('id') ? 'id' : 'en'
+          location.replace('/' + lang + '/')
+        })
+    })()
+  </script>
+</body>
+</html>

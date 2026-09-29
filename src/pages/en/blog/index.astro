@@ -1,0 +1,499 @@
+---
+import { getCollection } from 'astro:content'
+import { translations } from '../../../i18n/translations'
+import PageLayout from '../../../layouts/PageLayout.astro'
+import Nav from '../../../components/Nav.astro'
+import Footer from '../../../components/Footer.astro'
+import FloatingChat from '../../../components/FloatingChat.astro'
+
+const t = translations.en
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+
+const featured = allPosts.find(p => p.data.featured) ?? allPosts[0]
+const remaining = allPosts.filter(p => p.id !== featured.id)
+const categories = ['All', ...new Set(allPosts.map(p => p.data.category))]
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+---
+
+<PageLayout t={t} title="Blog — Saga Studio" description="Engineering, strategy, and lessons from building products and AI systems in Southeast Asia.">
+  <Nav t={t} />
+  <main class="blog-main">
+
+    <!-- Page Header -->
+    <section class="blog-header">
+      <div class="section-wrapper">
+        <div data-animate>
+          <span class="section-kicker">Read Our Blog</span>
+          <h1 class="blog-h1">Browse Our Resources</h1>
+          <p class="blog-intro">Engineering, strategy, and lessons from building serious software in Southeast Asia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Post -->
+    {featured && (
+      <div class="featured-wrap" data-animate>
+        <div class="section-wrapper">
+          <a href={`/en/blog/${featured.id}/`} class="featured-card">
+            <div class="featured-img-wrap">
+              {featured.data.image
+                ? <img src={featured.data.image} alt={featured.data.title} class="featured-img" loading="eager" />
+                : <div class="featured-img-placeholder" aria-hidden="true"></div>
+              }
+              <div class="featured-overlay">
+                <div class="featured-content">
+                  <div class="featured-meta">
+                    <span class="featured-tag">{featured.data.category}</span>
+                    <span class="featured-date">{formatDate(featured.data.publishDate)}</span>
+                  </div>
+                  <h2 class="featured-title">{featured.data.title}</h2>
+                  <p class="featured-excerpt">{featured.data.excerpt}</p>
+                  <div class="featured-author">
+                    <span class="author-avatar">{featured.data.author[0]}</span>
+                    <span class="author-name">{featured.data.author}</span>
+                    <span class="read-time">{featured.data.readTime}</span>
+                    <span class="featured-arrow">↗</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    )}
+
+    <!-- Filter + Grid -->
+    <section class="blog-grid-section">
+      <div class="section-wrapper">
+        <div class="blog-controls" data-animate>
+          <!-- Category tabs -->
+          <div class="category-tabs" role="tablist">
+            {categories.map((cat, i) => (
+              <button
+                class={`cat-tab ${i === 0 ? 'cat-tab--active' : ''}`}
+                data-category={cat}
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+              >
+                {cat}
+                {cat !== 'All' && (
+                  <span class="cat-count">{allPosts.filter(p => p.data.category === cat).length}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <!-- Search -->
+          <div class="blog-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" placeholder="Search blog…" id="blog-search" aria-label="Search blog posts" />
+          </div>
+        </div>
+
+        <!-- Results count -->
+        <p class="results-count" id="results-count">Showing {remaining.length} article{remaining.length !== 1 ? 's' : ''}</p>
+
+        <!-- Post grid -->
+        <div class="posts-grid" id="posts-grid">
+          {remaining.map((post, i) => (
+            <a
+              href={`/en/blog/${post.id}/`}
+              class="post-card"
+              data-animate
+              data-animate-delay={String((i % 3) * 0.1)}
+              data-category={post.data.category}
+              data-title={post.data.title.toLowerCase()}
+              data-excerpt={post.data.excerpt.toLowerCase()}
+            >
+              <div class="post-img-wrap">
+                {post.data.image
+                  ? <img src={post.data.image} alt={post.data.title} class="post-img" loading="lazy" />
+                  : <div class="post-img-placeholder" aria-hidden="true"></div>
+                }
+              </div>
+              <div class="post-body">
+                <span class="post-cat">{post.data.category}</span>
+                <h3 class="post-title">{post.data.title}</h3>
+                <p class="post-excerpt">{post.data.excerpt}</p>
+                <div class="post-footer">
+                  <span class="post-author-avatar">{post.data.author[0]}</span>
+                  <span class="post-author">{post.data.author}</span>
+                  <span class="post-readtime">{post.data.readTime}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <!-- Empty state -->
+        <div id="no-results" class="no-results" hidden>
+          <p>No posts found. Try a different search or category.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <Footer t={t} />
+  <FloatingChat t={t} />
+</PageLayout>
+
+<style>
+  .blog-main { padding-top: 5rem; }
+
+  /* ── Header ── */
+  .blog-header {
+    padding-block: clamp(3.5rem, 7vw, 6rem);
+    border-bottom: 1px solid var(--color-border);
+    background: radial-gradient(circle at 65% 30%, color-mix(in srgb, var(--color-brand-teal) 5%, transparent), transparent 28rem), var(--color-bg-base);
+  }
+
+  .blog-h1 {
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    color: var(--color-text-primary);
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  .blog-intro {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 40rem;
+    margin: 0;
+  }
+
+  /* ── Featured ── */
+  .featured-wrap {
+    padding-block: clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .featured-card {
+    display: block;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    text-decoration: none;
+    position: relative;
+    aspect-ratio: 16/7;
+    min-height: 320px;
+    background: var(--color-bg-raised);
+  }
+
+  @media (max-width: 640px) { .featured-card { aspect-ratio: 16/9; } }
+
+  .featured-img-wrap {
+    position: absolute;
+    inset: 0;
+  }
+
+  .featured-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .featured-card:hover .featured-img { transform: scale(1.03); }
+
+  .featured-img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1A9E93 0%, #0C1410 60%, #CAEF6F 100%);
+  }
+
+  .featured-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(12,20,16,0.9) 0%, rgba(12,20,16,0.5) 50%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .featured-content { max-width: 60rem; width: 100%; }
+
+  .featured-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .featured-tag {
+    background: var(--color-brand-teal);
+    color: #0C1410;
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .featured-date {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .featured-title {
+    font-size: clamp(1.35rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: #fff;
+    margin: 0 0 0.6rem;
+  }
+
+  .featured-excerpt {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.75);
+    margin: 0 0 1.1rem;
+    max-width: 52rem;
+  }
+
+  .featured-author {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .author-avatar, .post-author-avatar {
+    width: 2rem; height: 2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1A9E93, #CAEF6F);
+    color: #0C1410;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .author-name { color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 700; }
+  .read-time { color: rgba(255,255,255,0.55); font-size: 0.78rem; margin-left: auto; }
+  .featured-arrow { color: var(--color-brand-lime); font-size: 1.1rem; font-weight: 900; margin-left: auto; }
+
+  /* ── Controls ── */
+  .blog-grid-section { padding-block: clamp(2.5rem, 5vw, 4rem); }
+
+  .blog-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .category-tabs {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .cat-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: none;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: inherit;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+
+  .cat-tab:hover { border-color: var(--color-brand-teal); color: var(--color-brand-teal); }
+
+  .cat-tab--active {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+    color: var(--color-bg-base);
+  }
+
+  .cat-count {
+    background: var(--color-brand-teal);
+    color: #0C1410;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 0.1rem 0.45rem;
+    line-height: 1.4;
+  }
+
+  .blog-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    background: var(--color-bg-surface);
+    color: var(--color-text-muted);
+    transition: border-color 0.15s;
+  }
+
+  .blog-search:focus-within { border-color: var(--color-brand-teal); }
+
+  .blog-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    color: var(--color-text-primary);
+    width: 160px;
+    font-family: inherit;
+  }
+
+  .blog-search input::placeholder { color: var(--color-text-subtle); }
+
+  .results-count {
+    font-size: 0.8rem;
+    color: var(--color-text-subtle);
+    margin: 0 0 1.75rem;
+  }
+
+  /* ── Post grid ── */
+  .posts-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px)  { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 1.3rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background: var(--color-bg-base);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .post-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.1); transform: translateY(-3px); }
+  .post-card[hidden] { display: none; }
+
+  .post-img-wrap { height: 180px; overflow: hidden; background: var(--color-bg-raised); }
+  .post-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform 0.4s; }
+  .post-card:hover .post-img { transform: scale(1.04); }
+
+  .post-img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--color-brand-teal) 30%, var(--color-bg-raised)), var(--color-bg-raised));
+  }
+
+  .post-body { padding: 1.2rem 1.4rem 1.4rem; flex: 1; display: flex; flex-direction: column; }
+
+  .post-cat {
+    font-size: 0.67rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--color-brand-teal);
+  }
+
+  .post-title {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: var(--color-text-primary);
+  }
+
+  .post-excerpt {
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+  }
+
+  .post-author { font-size: 0.78rem; font-weight: 700; color: var(--color-text-muted); }
+  .post-readtime { font-size: 0.72rem; color: var(--color-text-subtle); margin-left: auto; }
+
+  /* ── No results ── */
+  .no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.cat-tab')
+  const cards = document.querySelectorAll<HTMLElement>('.post-card')
+  const searchInput = document.getElementById('blog-search') as HTMLInputElement
+  const countEl = document.getElementById('results-count')!
+  const noResults = document.getElementById('no-results')!
+  const grid = document.getElementById('posts-grid')!
+
+  let activeCategory = 'All'
+  let searchQuery = ''
+
+  function updateGrid() {
+    let shown = 0
+    cards.forEach(card => {
+      const catMatch = activeCategory === 'All' || card.dataset.category === activeCategory
+      const search = searchQuery.trim().toLowerCase()
+      const searchMatch = !search ||
+        (card.dataset.title ?? '').includes(search) ||
+        (card.dataset.excerpt ?? '').includes(search)
+      const visible = catMatch && searchMatch
+      card.hidden = !visible
+      if (visible) shown++
+    })
+
+    countEl.textContent = `Showing ${shown} article${shown !== 1 ? 's' : ''}`
+    noResults.hidden = shown > 0
+    grid.hidden = shown === 0
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => { t.classList.remove('cat-tab--active'); t.setAttribute('aria-selected', 'false') })
+      tab.classList.add('cat-tab--active')
+      tab.setAttribute('aria-selected', 'true')
+      activeCategory = tab.dataset.category ?? 'All'
+      updateGrid()
+    })
+  })
+
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value
+    updateGrid()
+  })
+</script>

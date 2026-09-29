@@ -1,0 +1,58 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { stats } = t.valueProps
+---
+<section class="proof-strip" aria-label="Saga Studio proof points">
+  <div class="section-wrapper">
+    <div class="proof-grid">
+      {stats.map((stat, i) => (
+        <div data-animate data-animate-delay={String(i * 0.08)}>
+          <strong>{stat.value}</strong>
+          <span>{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .proof-strip {
+    border-block: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+  }
+
+  .proof-grid {
+    display: grid;
+    gap: 1px;
+    background: var(--color-border);
+  }
+
+  .proof-grid > div {
+    display: grid;
+    gap: 0.75rem;
+    min-height: 10rem;
+    align-content: center;
+    background: var(--color-bg-surface);
+    padding: 1.5rem;
+  }
+
+  .proof-grid strong {
+    color: var(--color-text-primary);
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    font-weight: 800;
+    letter-spacing: -0.08em;
+    line-height: 0.9;
+  }
+
+  .proof-grid span {
+    max-width: 24ch;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+  }
+
+  @media (min-width: 768px) {
+    .proof-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

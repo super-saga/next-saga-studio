@@ -1,0 +1,51 @@
+---
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/inter/800.css'
+import '../styles/global.css'
+import type { Translations } from '../i18n/translations'
+
+interface Props {
+  t: Translations
+  title?: string
+  description?: string
+}
+const { t, title, description } = Astro.props
+const resolvedTitle = title ?? t.html.title
+const resolvedDesc = description ?? t.html.description
+const { lang } = t.html
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{resolvedTitle}</title>
+    <meta name="description" content={resolvedDesc} />
+    <meta property="og:title" content={resolvedTitle} />
+    <meta property="og:description" content={resolvedDesc} />
+    <meta property="og:image" content="/logo-text-light.jpeg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={lang === 'id' ? 'id_ID' : 'en_US'} />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+  </head>
+  <body>
+    <slot />
+
+    <script>
+      import { animate, inView } from 'motion'
+
+      document.querySelectorAll<HTMLElement>('[data-animate]').forEach(el => {
+        el.style.opacity = '0'
+      })
+
+      inView('[data-animate]', (element) => {
+        const el = element as HTMLElement
+        const delay = parseFloat(el.dataset.animateDelay ?? '0')
+        animate(el, { opacity: [0, 1], y: [24, 0] }, { duration: 0.5, delay })
+      }, { amount: 0.15 })
+    </script>
+  </body>
+</html>

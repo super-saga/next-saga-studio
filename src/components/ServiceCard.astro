@@ -1,0 +1,39 @@
+---
+interface Props {
+  title: string
+  description: string
+  icon: string
+  delay?: string
+}
+const { title, description, icon, delay = '0' } = Astro.props
+---
+<article
+  class="glass-card p-6 flex flex-col gap-4"
+  data-animate
+  data-animate-delay={delay}
+>
+  <div
+    style="
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,
+        color-mix(in srgb, #2ABFB3 15%, transparent),
+        color-mix(in srgb, #CAEF6F 15%, transparent)
+      );
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    "
+    aria-hidden="true"
+    set:html={icon}
+  />
+  <h3 style="font-size: 1.0625rem; font-weight: 700; color: var(--color-text-primary);">{title}</h3>
+  <p style="font-size: 0.9375rem; line-height: 1.6; color: var(--color-text-muted); flex: 1;">{description}</p>
+  <a href="#contact" class="service-link" style="font-size: 0.875rem; font-weight: 600; color: var(--color-brand-teal); text-decoration: none; display: flex; align-items: center; gap: 0.25rem; transition: gap 0.2s, color 0.2s;">
+    Pelajari lebih lanjut
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </a>
+</article>
+
+<style>
+  .service-link:hover { gap: 0.5rem !important; }
+</style>

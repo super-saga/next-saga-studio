@@ -1,0 +1,413 @@
+---
+import { getCollection, render } from 'astro:content'
+import { translations } from '../../../i18n/translations'
+import PageLayout from '../../../layouts/PageLayout.astro'
+import Nav from '../../../components/Nav.astro'
+import Footer from '../../../components/Footer.astro'
+import FloatingChat from '../../../components/FloatingChat.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft)
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
+const t = translations.en
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+// Related: same category, different id
+const allPosts = await getCollection('blog', ({ data }) => !data.draft)
+const related = allPosts
+  .filter(p => p.id !== post.id && p.data.category === post.data.category)
+  .slice(0, 3)
+const others = allPosts
+  .filter(p => p.id !== post.id && !related.find(r => r.id === p.id))
+  .slice(0, 3 - related.length)
+const relatedPosts = [...related, ...others].slice(0, 3)
+---
+
+<PageLayout t={t} title={`${post.data.title} — Saga Studio Blog`} description={post.data.excerpt}>
+  <Nav t={t} />
+  <main class="article-main">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+      <div class="section-wrapper breadcrumb-inner">
+        <a href="/en/blog/" class="back-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Blog
+        </a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-cat">{post.data.category}</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <header class="article-hero">
+      <div class="section-wrapper article-hero-inner">
+        <div class="article-meta" data-animate>
+          <span class="article-cat">{post.data.category}</span>
+          <span class="article-date">{formatDate(post.data.publishDate)}</span>
+          <span class="article-read">{post.data.readTime}</span>
+        </div>
+        <h1 class="article-h1" data-animate>{post.data.title}</h1>
+        <p class="article-excerpt" data-animate>{post.data.excerpt}</p>
+        <div class="article-author" data-animate>
+          <span class="author-avatar">{post.data.author[0]}</span>
+          <span class="author-name">{post.data.author}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero image -->
+    {post.data.image && (
+      <div class="article-hero-img-wrap" data-animate>
+        <div class="section-wrapper">
+          <div class="article-hero-img-inner">
+            <img src={post.data.image} alt={post.data.title} class="article-hero-img" loading="eager" />
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Article body + sidebar -->
+    <div class="article-body-wrap">
+      <div class="section-wrapper article-layout">
+
+        <!-- Article content -->
+        <article class="article-content prose" data-animate>
+          <Content />
+        </article>
+
+        <!-- Sidebar -->
+        <aside class="article-sidebar">
+          <div class="sidebar-sticky">
+            <!-- About Saga -->
+            <div class="sidebar-card" data-animate>
+              <div class="sidebar-brand">
+                <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#2ABFB3"/>
+                      <stop offset="100%" stop-color="#CAEF6F"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="6" y="4" width="22" height="10" rx="4" fill="url(#sg)"/>
+                  <rect x="12" y="15" width="22" height="10" rx="4" fill="url(#sg)" opacity="0.85"/>
+                  <rect x="6" y="26" width="22" height="10" rx="4" fill="url(#sg)" opacity="0.7"/>
+                </svg>
+                <strong>Saga Studio</strong>
+              </div>
+              <p class="sidebar-about">AI & Product Engineering Studio. We build systems, ship them, and hand them over completely.</p>
+              <a href="/en/#contact" class="gradient-btn sidebar-cta">Start a project</a>
+            </div>
+
+            <!-- More articles -->
+            {relatedPosts.length > 0 && (
+              <div class="sidebar-card" data-animate>
+                <h3 class="sidebar-title">More articles</h3>
+                <div class="related-list">
+                  {relatedPosts.map(p => (
+                    <a href={`/en/blog/${p.id}/`} class="related-item">
+                      <span class="related-cat">{p.data.category}</span>
+                      <span class="related-title">{p.data.title}</span>
+                      <span class="related-time">{p.data.readTime}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- CTA band -->
+    <section class="article-cta-band">
+      <div class="section-wrapper">
+        <div class="cta-band-inner" data-animate>
+          <h2 class="cta-band-h">Ready to build something serious?</h2>
+          <p class="cta-band-p">Tell us about your project. We'll respond with a concrete next step within one business day.</p>
+          <a href="/en/#contact" class="gradient-btn">Start a project</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <Footer t={t} />
+  <FloatingChat t={t} />
+</PageLayout>
+
+<style>
+  .article-main { padding-top: 5rem; }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb-bar { border-bottom: 1px solid var(--color-border); padding: 0.9rem 0; }
+  .breadcrumb-inner { display: flex; align-items: center; gap: 0.6rem; }
+  .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--color-text-muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: color 0.15s; }
+  .back-link:hover { color: var(--color-brand-teal); }
+  .breadcrumb-sep { color: var(--color-border); }
+  .breadcrumb-cat { font-size: 0.82rem; color: var(--color-brand-teal); font-weight: 700; }
+
+  /* ── Hero ── */
+  .article-hero {
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--color-border);
+    background: radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--color-brand-teal) 5%, transparent), transparent 30rem), var(--color-bg-base);
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  .article-cat {
+    background: color-mix(in srgb, var(--color-brand-teal) 12%, transparent);
+    color: var(--color-brand-teal);
+    border-radius: 999px;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .article-date, .article-read {
+    font-size: 0.8rem;
+    color: var(--color-text-subtle);
+  }
+
+  .article-date::before { content: '·'; margin-right: 0.4rem; }
+
+  .article-h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+    max-width: 44rem;
+  }
+
+  .article-excerpt {
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    line-height: 1.7;
+    color: var(--color-text-muted);
+    max-width: 44rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .article-author {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .author-avatar {
+    width: 2.2rem; height: 2.2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1A9E93, #CAEF6F);
+    color: #0C1410;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .author-name { font-size: 0.88rem; font-weight: 700; color: var(--color-text-primary); }
+
+  /* ── Hero image ── */
+  .article-hero-img-wrap {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .article-hero-img-inner {
+    border-radius: 1.5rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 16px 60px rgba(0,0,0,0.1);
+  }
+
+  .article-hero-img { width: 100%; height: auto; display: block; max-height: 480px; object-fit: cover; object-position: center; }
+
+  /* ── Article layout ── */
+  .article-body-wrap { padding-block: clamp(2.5rem, 5vw, 4.5rem); }
+
+  .article-layout {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 920px) {
+    .article-layout { grid-template-columns: 1fr 300px; }
+  }
+
+  /* ── Prose content ── */
+  .prose {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1.8;
+    max-width: 68ch;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+    margin: 2.5rem 0 0.75rem;
+  }
+
+  .prose :global(h3) {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin: 2rem 0 0.6rem;
+  }
+
+  .prose :global(p) { margin: 0 0 1.25rem; }
+
+  .prose :global(ul), .prose :global(ol) {
+    padding-left: 1.5rem;
+    margin: 0 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .prose :global(li) { padding-left: 0.25rem; }
+
+  .prose :global(strong) { color: var(--color-text-primary); font-weight: 800; }
+
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--color-brand-teal);
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.25rem;
+    background: color-mix(in srgb, var(--color-brand-teal) 6%, transparent);
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: var(--color-text-primary);
+    font-style: italic;
+  }
+
+  .prose :global(code) {
+    background: var(--color-bg-raised);
+    border-radius: 0.35rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.85em;
+    color: var(--color-brand-teal);
+  }
+
+  /* ── Sidebar ── */
+  .sidebar-sticky {
+    position: sticky;
+    top: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sidebar-card {
+    border: 1px solid var(--color-border);
+    border-radius: 1.2rem;
+    padding: 1.4rem;
+    background: var(--color-bg-surface);
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-about {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    margin: 0 0 1rem;
+  }
+
+  .sidebar-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+
+  .sidebar-title {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 1rem;
+  }
+
+  .related-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .related-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-decoration: none;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .related-item:hover { border-color: var(--color-border); background: var(--color-bg-raised); }
+
+  .related-cat { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-brand-teal); }
+  .related-title { font-size: 0.85rem; font-weight: 700; line-height: 1.35; color: var(--color-text-primary); }
+  .related-time { font-size: 0.72rem; color: var(--color-text-subtle); margin-top: 0.1rem; }
+
+  /* ── CTA band ── */
+  .article-cta-band {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-surface);
+    padding-block: clamp(3rem, 6vw, 5rem);
+  }
+
+  .cta-band-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    max-width: 38rem;
+    margin-inline: auto;
+  }
+
+  .cta-band-h {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .cta-band-p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>

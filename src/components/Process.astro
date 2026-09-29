@@ -1,0 +1,77 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { kicker, heading, steps } = t.process
+---
+<section id="process" class="process-section">
+  <div class="section-wrapper">
+    <div class="process-header" data-animate>
+      <span class="section-kicker">{kicker}</span>
+      <h2 class="section-heading">{heading}</h2>
+    </div>
+
+    <div class="process-grid">
+      {steps.map((step, i) => (
+        <article class="editorial-card process-card" data-animate data-animate-delay={String(i * 0.08)}>
+          <span>{step.num}</span>
+          <h3>{step.title}</h3>
+          <p>{step.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .process-section {
+    padding-block: clamp(5rem, 10vw, 8rem);
+    border-block: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-bg-surface) 70%, transparent);
+  }
+
+  .process-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .process-grid {
+    display: grid;
+    gap: 1px;
+    margin-top: 2.5rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 1.4rem;
+    background: var(--color-border);
+  }
+
+  .process-card {
+    min-height: 18rem;
+    padding: 1.35rem;
+    border: 0;
+  }
+
+  .process-card span {
+    color: var(--color-brand-teal);
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+
+  .process-card h3 {
+    margin-top: 6rem;
+    color: var(--color-text-primary);
+    font-size: 1.7rem;
+    letter-spacing: -0.05em;
+  }
+
+  .process-card p {
+    margin-top: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+  }
+
+  @media (min-width: 900px) {
+    .process-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>

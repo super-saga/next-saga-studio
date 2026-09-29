@@ -1,0 +1,146 @@
+---
+import { translations } from '../../../i18n/translations'
+import { portfolioProjects } from '../../../data/portfolio'
+import PageLayout from '../../../layouts/PageLayout.astro'
+import Nav from '../../../components/Nav.astro'
+import Footer from '../../../components/Footer.astro'
+import FloatingChat from '../../../components/FloatingChat.astro'
+
+const t = translations.en
+---
+
+<PageLayout t={t} title="Portfolio — Saga Studio" description="Real products shipped by Saga Studio — running in production and used by real people across Southeast Asia.">
+  <Nav t={t} />
+  <main class="portfolio-main">
+    <section class="portfolio-hero">
+      <div class="section-wrapper">
+        <div data-animate>
+          <span class="section-kicker">Portfolio</span>
+          <h1 class="portfolio-h1">Systems we've shipped.</h1>
+          <p class="portfolio-intro">Real products. Running in production. Used by real people across Southeast Asia.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="portfolio-grid-section">
+      <div class="section-wrapper">
+        <div class="projects-grid">
+          {portfolioProjects.map((p, i) => (
+            <a href={`/en/portfolio/${p.slug}/`} class="project-card" data-animate data-animate-delay={String(i * 0.08)}>
+              <div class="card-image-wrap">
+                <img src={p.image} alt={p.name} loading="lazy" class="card-image" />
+                <div class="card-overlay">
+                  <span class="card-cta">View project →</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <span class="card-tag">{p.tag}</span>
+                <h2 class="card-name">{p.name}</h2>
+                <p class="card-desc">{p.desc}</p>
+                {p.metrics && <p class="card-metrics">{p.metrics}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="cta-row" data-animate>
+          <p>Ready to be on this list?</p>
+          <a href="/en/#contact" class="gradient-btn">Start a project</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer t={t} />
+  <FloatingChat t={t} />
+</PageLayout>
+
+<style>
+  .portfolio-main { padding-top: 5rem; }
+
+  .portfolio-hero {
+    padding-block: clamp(4rem, 8vw, 7rem);
+    border-bottom: 1px solid var(--color-border);
+    background: radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--color-brand-teal) 5%, transparent), transparent 30rem), var(--color-bg-base);
+  }
+
+  .portfolio-h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    color: var(--color-text-primary);
+    margin: 0.6rem 0 0.75rem;
+  }
+
+  .portfolio-intro {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--color-text-muted);
+    line-height: 1.65;
+    max-width: 44rem;
+    margin: 0;
+  }
+
+  .portfolio-grid-section { padding-block: clamp(3rem, 6vw, 5rem); }
+
+  .projects-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+    margin-bottom: 3.5rem;
+  }
+
+  @media (min-width: 640px)  { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .project-card {
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-border);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: box-shadow 0.22s, transform 0.22s;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .project-card:hover {
+    box-shadow: 0 12px 40px color-mix(in srgb, black 12%, transparent);
+    transform: translateY(-4px);
+  }
+
+  .card-image-wrap { position: relative; height: 280px; overflow: hidden; background: var(--color-bg-raised); }
+  .card-image { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.4s ease; display: block; }
+  .project-card:hover .card-image { transform: scale(1.03); }
+
+  .card-overlay {
+    position: absolute; inset: 0;
+    background: color-mix(in srgb, #0C1410 55%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .project-card:hover .card-overlay { opacity: 1; }
+
+  .card-cta {
+    background: #fff; color: var(--color-text-primary);
+    border-radius: 999px; font-size: 0.85rem; font-weight: 700;
+    padding: 0.65rem 1.4rem;
+  }
+
+  .card-body { padding: 1.6rem 1.8rem 1.8rem; flex: 1; }
+
+  .card-tag {
+    display: inline-block; border-radius: 999px;
+    background: color-mix(in srgb, var(--color-brand-teal) 12%, transparent);
+    color: var(--color-brand-teal);
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.28rem 0.7rem;
+  }
+
+  .card-name { margin-top: 0.7rem; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-text-primary); }
+  .card-desc { margin-top: 0.5rem; font-size: 0.88rem; line-height: 1.65; color: var(--color-text-muted); }
+  .card-metrics { margin-top: 0.75rem; font-size: 0.75rem; font-weight: 700; color: var(--color-brand-teal); }
+
+  .cta-row { display: flex; align-items: center; gap: 1.25rem; justify-content: center; flex-wrap: wrap; }
+  .cta-row p { color: var(--color-text-muted); font-size: 0.95rem; margin: 0; }
+</style>

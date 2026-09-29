@@ -1,0 +1,176 @@
+---
+import { translations } from '../../../i18n/translations'
+import { portfolioProjects } from '../../../data/portfolio'
+import PageLayout from '../../../layouts/PageLayout.astro'
+import Nav from '../../../components/Nav.astro'
+import Footer from '../../../components/Footer.astro'
+import FloatingChat from '../../../components/FloatingChat.astro'
+
+export function getStaticPaths() {
+  return portfolioProjects.map(p => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }))
+}
+
+const { project } = Astro.props
+const t = translations.id
+---
+
+<PageLayout t={t} title={`${project.name} — Saga Studio`} description={project.desc}>
+  <Nav t={t} />
+  <main class="detail-main">
+
+    <div class="breadcrumb-bar">
+      <div class="section-wrapper">
+        <a href="/id/portfolio/" class="back-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Semua proyek
+        </a>
+      </div>
+    </div>
+
+    <section class="detail-hero">
+      <div class="section-wrapper">
+        <div class="detail-hero-content" data-animate>
+          <span class="section-kicker">{project.tag}</span>
+          <h1 class="detail-h1">{project.name}</h1>
+          <p class="detail-tagline">{project.tagline}</p>
+          {project.metrics && (
+            <div class="detail-metrics">{project.metrics}</div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <div class="detail-image-wrap" data-animate>
+      <div class="section-wrapper">
+        <div class="detail-screenshot">
+          <img src={project.image} alt={`${project.name} screenshot`} class="detail-img" />
+        </div>
+      </div>
+    </div>
+
+    <section class="detail-content">
+      <div class="section-wrapper">
+        <div class="detail-grid">
+          <div class="detail-story" data-animate>
+            <div class="story-block">
+              <h2 class="story-label">Tantangan</h2>
+              <p class="story-text">{project.challenge}</p>
+            </div>
+            <div class="story-block">
+              <h2 class="story-label">Solusi yang Kami Bangun</h2>
+              <p class="story-text">{project.solution}</p>
+            </div>
+          </div>
+
+          <aside class="detail-sidebar" data-animate>
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">Yang kami bangun</h3>
+              <ul class="features-list">
+                {project.features.map(f => (
+                  <li class="feature-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">Teknologi</h3>
+              <div class="stack-tags">
+                {project.stack.map(s => (
+                  <span class="stack-tag">{s}</span>
+                ))}
+              </div>
+            </div>
+
+            {project.url && (
+              <a href={project.url} target="_blank" rel="noopener noreferrer" class="gradient-btn live-btn">
+                Lihat proyek langsung ↗
+              </a>
+            )}
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="other-projects">
+      <div class="section-wrapper">
+        <h2 class="other-title" data-animate>Proyek lainnya</h2>
+        <div class="other-grid">
+          {portfolioProjects.filter(p => p.slug !== project.slug).slice(0, 3).map((p, i) => (
+            <a href={`/id/portfolio/${p.slug}/`} class="other-card" data-animate data-animate-delay={String(i * 0.1)}>
+              <div class="other-img-wrap">
+                <img src={p.image} alt={p.name} class="other-img" loading="lazy" />
+              </div>
+              <div class="other-body">
+                <span class="other-tag">{p.tag}</span>
+                <span class="other-name">{p.name}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="detail-cta" data-animate>
+          <p>Siap membangun sesuatu yang serius?</p>
+          <a href="/id/#contact" class="gradient-btn">Mulai proyek</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <Footer t={t} />
+  <FloatingChat t={t} />
+</PageLayout>
+
+<style>
+  .detail-main { padding-top: 5rem; }
+
+  .breadcrumb-bar { border-bottom: 1px solid var(--color-border); padding: 0.9rem 0; }
+  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted); font-size: 0.84rem; font-weight: 600; text-decoration: none; transition: color 0.15s; }
+  .back-link:hover { color: var(--color-brand-teal); }
+
+  .detail-hero { padding-block: clamp(3rem, 6vw, 5rem); border-bottom: 1px solid var(--color-border); }
+  .detail-h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1.05; color: var(--color-text-primary); margin: 0.5rem 0 0.75rem; }
+  .detail-tagline { font-size: clamp(1rem, 2vw, 1.15rem); color: var(--color-text-muted); line-height: 1.65; max-width: 52rem; margin: 0; }
+  .detail-metrics { margin-top: 1.25rem; display: inline-flex; align-items: center; background: color-mix(in srgb, var(--color-brand-teal) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-brand-teal) 25%, transparent); border-radius: 999px; padding: 0.45rem 1rem; font-size: 0.78rem; font-weight: 700; color: var(--color-brand-teal); }
+
+  .detail-image-wrap { padding-block: clamp(2rem, 4vw, 3.5rem); background: var(--color-bg-surface); border-bottom: 1px solid var(--color-border); }
+  .detail-screenshot { border-radius: 1.5rem; overflow: hidden; border: 1px solid var(--color-border); box-shadow: 0 24px 80px rgba(0,0,0,0.12); }
+  .detail-img { width: 100%; height: auto; display: block; object-fit: cover; object-position: top; }
+
+  .detail-content { padding-block: clamp(3rem, 6vw, 5rem); }
+  .detail-grid { display: grid; gap: 3rem; align-items: start; }
+  @media (min-width: 900px) { .detail-grid { grid-template-columns: 1fr 380px; } }
+
+  .story-block + .story-block { margin-top: 2.5rem; }
+  .story-label { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-brand-teal); margin: 0 0 0.85rem; }
+  .story-text { font-size: 1rem; line-height: 1.75; color: var(--color-text-muted); margin: 0; }
+
+  .sidebar-card { border: 1px solid var(--color-border); border-radius: 1.2rem; padding: 1.5rem; background: var(--color-bg-surface); margin-bottom: 1rem; }
+  .sidebar-title { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin: 0 0 1rem; }
+  .features-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.65rem; }
+  .feature-item { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.87rem; line-height: 1.55; color: var(--color-text-primary); }
+  .feature-item svg { flex-shrink: 0; margin-top: 0.2rem; color: var(--color-brand-teal); }
+  .stack-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .stack-tag { background: var(--color-bg-raised); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.3rem 0.75rem; font-size: 0.75rem; font-weight: 700; color: var(--color-text-primary); }
+  .live-btn { display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%; text-align: center; }
+
+  .other-projects { padding-block: clamp(3rem, 6vw, 5rem); border-top: 1px solid var(--color-border); background: var(--color-bg-surface); }
+  .other-title { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.03em; color: var(--color-text-primary); margin: 0 0 2rem; }
+  .other-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .other-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 900px) { .other-grid { grid-template-columns: repeat(3, 1fr); } }
+  .other-card { display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 1.2rem; overflow: hidden; text-decoration: none; transition: box-shadow 0.2s, transform 0.2s; background: var(--color-bg-base); }
+  .other-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .other-img-wrap { height: 160px; overflow: hidden; background: var(--color-bg-raised); }
+  .other-img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transition: transform 0.4s; }
+  .other-card:hover .other-img { transform: scale(1.04); }
+  .other-body { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .other-tag { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-brand-teal); }
+  .other-name { font-size: 0.95rem; font-weight: 700; color: var(--color-text-primary); }
+  .detail-cta { display: flex; align-items: center; justify-content: center; gap: 1.25rem; margin-top: 3rem; flex-wrap: wrap; }
+  .detail-cta p { color: var(--color-text-muted); font-size: 0.95rem; margin: 0; }
+</style>

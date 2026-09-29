@@ -1,0 +1,105 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { tagline, columns, contactTitle, copyright, startProject } = t.footer
+const year = new Date().getFullYear()
+---
+<footer class="site-footer">
+  <div class="section-wrapper">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="/logo-text-light.jpeg" alt="Saga Studio" />
+        <p>{tagline}</p>
+      </div>
+
+      {columns.map(({ title, links }) => (
+        <div>
+          <h2>{title}</h2>
+          <nav aria-label={`${title} footer links`}>
+            {links.map((link) => <a href="#services">{link}</a>)}
+          </nav>
+        </div>
+      ))}
+
+      <div>
+        <h2>{contactTitle}</h2>
+        <nav aria-label="Contact links">
+          <a href="mailto:hello@studio.saga.co.id">hello@studio.saga.co.id</a>
+          <a href="https://studio.saga.co.id" target="_blank" rel="noopener noreferrer">studio.saga.co.id</a>
+          <span>Indonesia</span>
+        </nav>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {copyright}</p>
+      <a href="#contact">{startProject}</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding-block: 4rem 2rem;
+    background: var(--color-bg-base);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 2rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .footer-brand img { max-width: 10rem; height: auto; }
+
+  .footer-brand p {
+    max-width: 24rem;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+  }
+
+  h2 {
+    color: var(--color-brand-teal);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  nav {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+
+  a, span {
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  a:hover { color: var(--color-brand-teal); }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.5rem;
+  }
+
+  .footer-bottom p {
+    color: var(--color-text-subtle);
+    font-size: 0.82rem;
+  }
+
+  @media (min-width: 850px) {
+    .footer-grid { grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr)); }
+  }
+</style>

@@ -1,0 +1,272 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { kicker, heading, items } = t.testimonials
+---
+
+<section id="testimonials" class="testimonials-section">
+  <div class="section-wrapper">
+    <div class="testimonials-header" data-animate>
+      <span class="section-kicker">{kicker}</span>
+      <h2 class="testimonials-h2">{heading}</h2>
+    </div>
+  </div>
+
+  <!-- Logo row -->
+  <div class="logo-row" data-animate>
+    {items.map((item) => (
+      <button
+        class="logo-item"
+        type="button"
+        data-quote={item.quote}
+        data-name={item.name}
+        data-role={item.role}
+        data-avatar={item.avatar}
+        data-color={item.color}
+        aria-label={`Testimonial from ${item.name} at ${item.company}`}
+      >
+        <img
+          src={item.logo}
+          alt={item.company}
+          class="logo-img"
+          loading="lazy"
+          draggable="false"
+        />
+      </button>
+    ))}
+  </div>
+</section>
+
+<!-- Popover rendered outside section to escape any stacking context -->
+<div id="t-popover" class="t-popover" role="tooltip" aria-hidden="true">
+  <p class="popover-quote" id="popover-quote"></p>
+  <div class="popover-author">
+    <div class="popover-avatar" id="popover-avatar"></div>
+    <div>
+      <span class="popover-name" id="popover-name"></span>
+      <span class="popover-role" id="popover-role"></span>
+    </div>
+  </div>
+  <div class="popover-tip"></div>
+</div>
+
+<style>
+  .testimonials-section {
+    padding-block: clamp(4rem, 8vw, 7rem);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-surface);
+  }
+
+  .testimonials-header { margin-bottom: 2.5rem; }
+
+  .testimonials-h2 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  /* ── Logo row ── */
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    padding-block: 0.5rem;
+  }
+
+  .logo-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .logo-img {
+    height: 60px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(1) opacity(0.4);
+    transition: filter 0.25s;
+  }
+
+  .logo-item:hover .logo-img {
+    filter: grayscale(0) opacity(1);
+  }
+
+  /* ── Popover (global, portaled to body via JS) ── */
+  .t-popover {
+    position: fixed;
+    z-index: 9999;
+    width: 300px;
+    background: var(--color-text-primary);
+    border-radius: 1.1rem;
+    padding: 1.25rem 1.25rem 1rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.28), 0 4px 16px rgba(0,0,0,0.14);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    /* Hidden off-screen until JS positions it */
+    left: -9999px;
+    top: 0;
+  }
+
+  .t-popover.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .popover-quote {
+    font-size: 0.83rem;
+    line-height: 1.68;
+    color: rgba(255,255,255,0.82);
+    margin: 0 0 1rem;
+  }
+
+  .popover-author {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 0.85rem;
+  }
+
+  .popover-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.03em;
+  }
+
+  .popover-name {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .popover-role {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 0.1rem;
+  }
+
+  /* Triangle tip pointing downward (popover sits above logo) */
+  .popover-tip {
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 7px;
+    background: var(--color-text-primary);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+</style>
+
+<script>
+  // Portal the popover to <body> so it's never clipped by any ancestor stacking context
+  const popover = document.getElementById('t-popover') as HTMLElement
+  document.body.appendChild(popover)
+
+  const qEl = document.getElementById('popover-quote')   as HTMLElement
+  const nEl = document.getElementById('popover-name')    as HTMLElement
+  const rEl = document.getElementById('popover-role')    as HTMLElement
+  const aEl = document.getElementById('popover-avatar')  as HTMLElement
+  const tip = popover.querySelector<HTMLElement>('.popover-tip')!
+
+  let hideTimer: ReturnType<typeof setTimeout>
+
+  function showPopover(logo: HTMLElement) {
+    clearTimeout(hideTimer)
+
+    // Fill content
+    qEl.textContent = logo.dataset.quote  ?? ''
+    nEl.textContent = logo.dataset.name   ?? ''
+    rEl.textContent = logo.dataset.role   ?? ''
+    aEl.textContent = logo.dataset.avatar ?? ''
+    aEl.style.background = logo.dataset.color ?? '#1A9E93'
+
+    // Position: fixed, so use viewport-relative rect (NO window.scrollY)
+    const rect = logo.getBoundingClientRect()
+    const vw   = window.innerWidth
+
+    popover.style.left = '-9999px'
+    popover.style.top  = '0'
+    popover.classList.remove('is-visible')
+
+    requestAnimationFrame(() => {
+      const pw = popover.offsetWidth  || 300
+      const ph = popover.offsetHeight || 180
+
+      // Center horizontally over the logo, clamp to viewport
+      let left = rect.left + rect.width / 2 - pw / 2
+      left = Math.max(12, Math.min(left, vw - pw - 12))
+
+      // Position ABOVE the logo
+      let top = rect.top - ph - 12
+
+      // If too close to top, flip below
+      const flipToBottom = top < 8
+      if (flipToBottom) {
+        top = rect.bottom + 12
+        tip.style.top    = '-7px'
+        tip.style.bottom = 'auto'
+        tip.style.clipPath = 'polygon(50% 0, 0 100%, 100% 100%)'
+      } else {
+        tip.style.top    = 'auto'
+        tip.style.bottom = '-7px'
+        tip.style.clipPath = 'polygon(0 0, 100% 0, 50% 100%)'
+      }
+
+      // Adjust tip horizontal position to point at the logo center
+      const logoCenter = rect.left + rect.width / 2
+      const tipOffset  = logoCenter - left
+      const clampedTip = Math.max(20, Math.min(tipOffset, pw - 20))
+      tip.style.left      = `${clampedTip}px`
+      tip.style.transform = 'translateX(-50%)'
+
+      popover.style.left = `${left}px`
+      popover.style.top  = `${top}px`
+      popover.classList.add('is-visible')
+      popover.setAttribute('aria-hidden', 'false')
+    })
+  }
+
+  function hidePopover() {
+    hideTimer = setTimeout(() => {
+      popover.classList.remove('is-visible')
+      popover.setAttribute('aria-hidden', 'true')
+    }, 160)
+  }
+
+  document.querySelectorAll<HTMLElement>('.logo-item').forEach(logo => {
+    logo.addEventListener('mouseenter', () => showPopover(logo))
+    logo.addEventListener('mouseleave', hidePopover)
+    logo.addEventListener('focus',      () => showPopover(logo))
+    logo.addEventListener('blur',       hidePopover)
+  })
+
+  popover.addEventListener('mouseenter', () => clearTimeout(hideTimer))
+  popover.addEventListener('mouseleave', hidePopover)
+</script>

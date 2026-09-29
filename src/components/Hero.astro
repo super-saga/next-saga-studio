@@ -1,0 +1,104 @@
+---
+import type { Translations } from '../i18n/translations'
+interface Props { t: Translations }
+const { t } = Astro.props
+const { eyebrow, h1, intro, cta1, cta2, pillars } = t.hero
+---
+<section class="hero-section">
+  <div class="dot-grid hero-dot-grid" aria-hidden="true"></div>
+
+  <div class="section-wrapper hero-wrapper">
+    <div class="hero-layout">
+
+      <div class="hero-copy">
+        <div data-animate>
+          <span class="eyebrow">{eyebrow}</span>
+        </div>
+
+        <h1 data-animate data-animate-delay="0.08">{h1}</h1>
+
+        <p class="section-copy hero-intro" data-animate data-animate-delay="0.16">{intro}</p>
+
+        <div class="hero-actions" data-animate data-animate-delay="0.24">
+          <a href="#contact" class="gradient-btn">{cta1}</a>
+          <a href="#services" class="ghost-btn">
+            {cta2}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-cards">
+        {pillars.map((p, i) => (
+          <article
+            class="pillar-card"
+            data-accent={p.accent}
+            data-animate
+            data-animate-delay={String(0.1 + i * 0.1)}
+          >
+            <span class="pillar-num">{p.num}</span>
+            <h2 class="pillar-title">{p.title}</h2>
+            <p class="pillar-body">{p.body}</p>
+          </article>
+        ))}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+    padding-top: 8rem;
+    padding-bottom: 5rem;
+  }
+
+  .hero-dot-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .hero-wrapper { position: relative; z-index: 1; }
+
+  .hero-layout {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .hero-layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+  }
+
+  .hero-copy h1 {
+    max-width: 14ch;
+    margin-top: 1.4rem;
+    color: var(--color-text-primary);
+    font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+  }
+
+  .hero-intro {
+    max-width: 42rem;
+    margin-top: 1.6rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 2.2rem;
+  }
+
+  .hero-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding-top: 0.5rem;
+  }
+</style>
